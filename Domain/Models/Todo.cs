@@ -1,3 +1,5 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace TodoApi.Domain.Models;
 
 public class Todo
@@ -7,7 +9,8 @@ public class Todo
         Description = description;
         IsCompleted = isCompleted;
     }
-    public int Id { get; }
+    [Key]
+    public int Id { get; set; }
     public string Description { get; private set; }
     public bool IsCompleted { get; private set; }
 

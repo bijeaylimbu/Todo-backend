@@ -4,7 +4,6 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using TodoApi.Domain.Models;
 
 namespace TodoApi.Infrastructure.Persistence.EntityConfiguration;
-
 internal sealed class TodoBuilder: IEntityTypeConfiguration<Todo>
 {
     public void Configure(EntityTypeBuilder<Todo> builder)
@@ -16,5 +15,4 @@ internal sealed class TodoBuilder: IEntityTypeConfiguration<Todo>
         builder.Property(x => x.IsCompleted)
             .HasColumnName("is_completed");
     }
-    
 }

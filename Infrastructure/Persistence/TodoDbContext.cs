@@ -3,22 +3,20 @@ using OneOf;
 using OneOf.Types;
 using TodoApi.BuildingBlocks.Core;
 using TodoApi.Domain.Models;
+using TodoApi.Infrastructure.Persistence.EntityConfiguration;
+
 namespace TodoApi.Infrastructure.Persistence;
+using Serilog;
+using ILogger=Serilog.ILogger;
 public class TodoDbContext : DbContext, IUnitOfWork
 {
     private readonly ILogger _logger;
     public TodoDbContext(DbContextOptions<TodoDbContext> options) 
         : base(options)
     {
-     _logger.LogInformation("TodoDbcontext");
+     _logger= Log.ForContext<TodoDbContext>();
     }
-    public Task<OneOf<Success, Error<string>, Exception>> SaveEntitiesAsync(CancellationToken cancellationToken = default)
-    {
-        throw new NotImplementedException();
-    }
-    public  DbSet<Todo> Todos { get; set; }
-
-    public async Task<OneOf<Success, Error<string>, Exception>> SaveEntit(CancellationToken cancellationToken = default)
+    public async Task<OneOf<Success, Error<string>, Exception>> SaveEntitiesAsync(CancellationToken cancellationToken = default)
     {
         try
         {
@@ -27,16 +25,22 @@ public class TodoDbContext : DbContext, IUnitOfWork
         }
         catch (DbUpdateConcurrencyException ex)
         {
-            _logger.LogError(ex, "Error saving entity. {message}", ex.Message);
+            _logger.Error(ex, "Error saving entity. {message}", ex.Message);
             return new Error<string>(ex.Message);
         }
         catch (Exception e)
         {
-            _logger.LogError(e, "Error saving entites. {message}", e.Message);
+            _logger.Error(e, "Error saving entites. {message}", e.Message);
             return e;
         }
     }
-
+    public  DbSet<Todo> Todos { get; set; }
+    
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        var assembly = typeof(TodoBuilder).Assembly;
+        modelBuilder.ApplyConfigurationsFromAssembly(assembly);
+    }
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
         optionsBuilder
