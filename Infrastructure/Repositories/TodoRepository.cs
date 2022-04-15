@@ -17,7 +17,7 @@ public class TodoRepository : ITodoRepository
     }
 
     public IUnitOfWork UnitOfWork => _context;
-    public async Task<OneOf<Todo, NotFound, Error<string>>> GetTodoByAsync(int id, CancellationToken cancellationToken)
+    public async Task<OneOf<Todo, NotFound, Error<string>>> GetTodoByIdAsync(int id, CancellationToken cancellationToken)
     {
         try
         {
