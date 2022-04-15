@@ -1,10 +1,17 @@
-using System.Reflection;
+
+using MediatR;
 using Microsoft.EntityFrameworkCore;
+using TodoApi.Application.CommandHandlers;
+using TodoApi.Application.Commands;
+using TodoApi.Controllers;
+using TodoApi.Domain.Interfaces;
 using TodoApi.Infrastructure.Persistence;
+using TodoApi.Infrastructure.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
+builder.Services.AddControllers();
 builder.Services.AddDbContext<TodoDbContext>(options =>
     options.UseNpgsql(builder
             .Configuration
@@ -17,8 +24,10 @@ builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-
+builder.Services.AddMediatR(typeof(CreateTodoCommandHandler));
+builder.Services.AddScoped<ITodoRepository, TodoRepository>();
 var app = builder.Build();
+
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
