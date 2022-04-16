@@ -32,13 +32,13 @@ public class TodoRepository : ITodoRepository
         }
     }
 
-    public async Task<OneOf<IEnumerable<Todo>, Error<string>>> GetTodoAsync()
+    public async Task<OneOf<IEnumerable<Todo>, Error<string>>> GetTodoAsync(CancellationToken cancellationToken)
     {
         try
         {
             var todos =  await _context.Todos
                 .AsNoTracking()
-                .ToListAsync();
+                .ToListAsync(cancellationToken);
             return todos;
         }
         catch (Exception e)
@@ -68,4 +68,20 @@ public class TodoRepository : ITodoRepository
         _context.Todos.Remove(todo);
 
     }
+
+    public async Task<OneOf<IEnumerable<Todo>, Error<string>>> SearchTodoAsync(string query, CancellationToken cancellationToken)
+    {
+        try
+        {
+            var todo = await _context.Todos
+                .Where(x=>EF.Functions.ILike(x.Description,$"%{query}%"))
+                .ToListAsync(cancellationToken);
+            return todo;
+        }
+        catch (Exception e)
+        {
+            return new Error<string>(e.Message);
+        }
+    }
+    
 }

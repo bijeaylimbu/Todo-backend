@@ -3,6 +3,7 @@ using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using TodoApi.Application.Commands;
 using TodoApi.Application.Constants;
+using TodoApi.Application.Queries;
 using TodoApi.Application.Requests;
 using TodoApi.Application.Responses;
 using TodoApi.BuildingBlocks.Core;
@@ -53,5 +54,29 @@ public class TodoController : ControllerBase
                     new[] {ErrorReason.todoNotFound})),
             error=> StatusCode((int) HttpStatusCode.ServiceUnavailable, error)
         );
+    }
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [HttpGet("getList")]
+    public async Task<IActionResult> GetAllTodos()
+    {
+        var query = new GetTodoQuery(HttpContext.CorrelationHeader());
+        var outcome = await _mediator.Send(query);
+        return outcome.Match(
+            success => StatusCode((int) HttpStatusCode.OK, success),
+            error => StatusCode((int) HttpStatusCode.ServiceUnavailable, error)
+        );
+    }
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [HttpGet]
+    public async Task<IActionResult> GetSearchTodo(string query)
+    {
+        var result = await _mediator.Send(new SearchTodoQuery(query, HttpContext.CorrelationHeader())).ConfigureAwait(false);
+        return result.Match<IActionResult>(
+            success=> Ok(result.Value),
+            notFound=> NotFound(ErrorReason.todoNotFound));
     }
 }
