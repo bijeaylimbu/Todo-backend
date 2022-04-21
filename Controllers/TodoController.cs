@@ -79,4 +79,15 @@ public class TodoController : ControllerBase
             success=> Ok(result.Value),
             notFound=> NotFound(ErrorReason.todoNotFound));
     }
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [HttpDelete]
+    public async Task<IActionResult> DeleteTodoById(int id)
+    {
+        var result = await _mediator.Send(new DeleteTodoQuery(id, HttpContext.CorrelationHeader()));
+        return result.Match<IActionResult>(
+            success=> Ok(result.Value),
+            notFound=> NotFound(ErrorReason.todoNotFound));
+    }
 }

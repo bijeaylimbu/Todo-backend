@@ -37,6 +37,7 @@ public class TodoRepository : ITodoRepository
         try
         {
             var todos =  await _context.Todos
+                .OrderByDescending(x=>x.Id)
                 .AsNoTracking()
                 .ToListAsync(cancellationToken);
             return todos;
@@ -59,14 +60,14 @@ public class TodoRepository : ITodoRepository
         return _context.Todos.Update(todo).Entity;
     }
 
-    public async Task DeleteAsync(int id, CancellationToken cancellationToken)
+    public async Task<int> DeleteAsync(int id, CancellationToken cancellationToken)
     {
         var todo = await _context.Todos.SingleOrDefaultAsync(x => x.Id == id, cancellationToken);
         if (todo is null)
-            return ;
+            return  default;
         _context.Todos.Attach(todo);
         _context.Todos.Remove(todo);
-
+        return todo.Id;
     }
 
     public async Task<OneOf<IEnumerable<Todo>, Error<string>>> SearchTodoAsync(string query, CancellationToken cancellationToken)
@@ -83,5 +84,4 @@ public class TodoRepository : ITodoRepository
             return new Error<string>(e.Message);
         }
     }
-    
 }
