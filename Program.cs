@@ -26,6 +26,7 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddMediatR(typeof(CreateTodoCommandHandler));
 builder.Services.AddScoped<ITodoRepository, TodoRepository>();
+builder.Services.AddCors();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
